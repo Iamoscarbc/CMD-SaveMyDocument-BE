@@ -7,10 +7,15 @@ import fs from 'fs'
 import { fileTypeFromBuffer } from 'file-type'
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+import bodyParser from 'body-parser'
 import "./config/loadEnvironment.js";
 
 import { File } from './models/index.js';
 
+app.use(bodyParser.urlencoded({
+  extended: true,
+  charset: 'UTF-8'
+}))
 
 app.set('port', process.env.PORT || 3000);
 app.set('json spaces', 1)
@@ -27,6 +32,11 @@ app.post('/api/addFile', async (req, res) => {
     const fileAdded = await ipfs.add({
       path: file.name,
       content: file.data
+    })
+
+    const doc = await File.create({
+      filename: file.name,
+      cid: fileAdded.cid
     })
 
     res.json({
