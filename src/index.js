@@ -7,6 +7,9 @@ import fs from 'fs'
 import { fileTypeFromBuffer } from 'file-type'
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+import "./config/loadEnvironment.js";
+
+import { File } from './models/index.js';
 
 
 app.set('port', process.env.PORT || 3000);
@@ -25,7 +28,7 @@ app.post('/api/addFile', async (req, res) => {
       path: file.name,
       content: file.data
     })
-    console.log("fileAdded", fileAdded)
+
     res.json({
         success: true,
         message: 'File added successfully!',
@@ -33,15 +36,15 @@ app.post('/api/addFile', async (req, res) => {
           path: fileAdded.path,
           cid: fileAdded.cid
         }
-    });
+    })
   } catch (error) {
-    console.error(error);
-    res.statusCode = 500;
+    console.error(error)
+    res.statusCode = 500
     res.json({
       success: false,
       message: 'Error in upload file',
       error
-  });
+    })
   }
 })
 
@@ -55,7 +58,7 @@ app.get('/api/get-by-cid/:cid', async (req, res) => {
       for await (const chunk of fileStream) {
         fileBuffer = Buffer.concat([fileBuffer, chunk]);
       }
-      console.log("fileBuffer", fileBuffer)
+      
       const fileType = await fileTypeFromBuffer(fileBuffer);
       let fileName = cid
       if (fileType) {
@@ -75,12 +78,38 @@ app.get('/api/get-by-cid/:cid', async (req, res) => {
         }
       })
     } catch (err) {
-      console.error(err);
+      console.error(err)
       res.json({
         success: false,
         error: err
       })
     }
+})
+
+app.get('/api/get-file-by-search/:param', async (req, res) => {
+  try {
+    const param = req.params.param
+    console.log("param", param)
+    let collection = await File.find({ 
+      $or: [
+        { filename : { $regex : `${param}`, $options: "i" } },
+        { cid : { $eq : param} }
+      ] 
+    })
+      
+    console.log("collection", collection)
+    res.json({
+      success: true,
+      message: 'File added successfully!',
+      data: collection
+  })
+  } catch (err) {
+    console.error(err)
+    res.json({
+      success: false,
+      error: err
+    })
+  }
 })
 
 app.listen(3000, () => {
