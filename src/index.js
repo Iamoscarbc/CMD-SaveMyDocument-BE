@@ -106,8 +106,7 @@ app.get('/api/get-file-by-search/:param', async (req, res) => {
         { cid : { $eq : param} }
       ] 
     })
-      
-    console.log("collection", collection)
+    
     res.json({
       success: true,
       message: 'File added successfully!',
