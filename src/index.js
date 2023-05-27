@@ -128,7 +128,7 @@ app.get('/api/get-indicators', async (req, res) => {
         success: true,
         message: 'Indicadores',
         data: {
-          files
+          files: files.length
         }
       })
     } catch (err) {
