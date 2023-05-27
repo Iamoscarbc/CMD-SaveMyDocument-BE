@@ -121,6 +121,25 @@ app.get('/api/get-file-by-search/:param', async (req, res) => {
   }
 })
 
+app.get('/api/get-indicators', async (req, res) => {
+    try{
+      const files = await File.find()
+      res.json({
+        success: true,
+        message: 'Indicadores',
+        data: {
+          files
+        }
+      })
+    } catch (err) {
+      console.error(err)
+      res.json({
+        success: false,
+        error: err
+      })
+    }
+})
+
 app.listen(3000, () => {
     console.log("Server is listening on port 3000")
 })
