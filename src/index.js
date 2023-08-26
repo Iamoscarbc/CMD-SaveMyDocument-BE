@@ -158,11 +158,11 @@ app.get('/api/get-file-text-by-cid/:cid', async (req, res) => {
       if(fileType.ext == 'pdf'){
         await fs.writeFileSync(fileName, fileBuffer);
         let filePath = path.join(__dirname, "../"+fileName)
-        let res = await fs.readFileSync(filePath, 'utf-8')
+        let response = await fs.readFileSync(filePath, 'utf-8')
         await fs.unlinkSync(filePath)
         res.json({
           success: true,
-          data: res
+          data: response
         })
       }
     } else {
