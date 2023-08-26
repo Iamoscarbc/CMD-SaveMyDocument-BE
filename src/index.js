@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import bodyParser from 'body-parser'
 import "./config/loadEnvironment.js";
-import pdfParse from 'pdf-parse'
+import pdf from 'pdf-parse'
 
 import { File } from './models/index.js';
 
@@ -158,7 +158,7 @@ app.get('/api/get-file-text-by-cid/:cid', async (req, res) => {
       console.log(`El archivo es de tipo ${fileType.mime} y su extensión es ${fileType.ext}`);
       fileName = `${cid}.${fileType.ext}`
       if(fileType.ext == 'pdf'){
-        let pdfExtract = await pdfParse(readFileSync)
+        let pdfExtract = await pdf(readFileSync)
         console.log('File content: ', pdfExtract.text)
         console.log('Total pages: ', pdfExtract.numpages)
         console.log('All content: ', pdfExtract.info)
