@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 import bodyParser from 'body-parser'
 import "./config/loadEnvironment.js";
 
-import Pdf from './pdf.js'
+import * as pdfjslib from 'pdfjs-dist';
 
 import { File } from './models/index.js';
 
@@ -158,10 +158,19 @@ app.get('/api/get-file-text-by-cid/:cid', async (req, res) => {
       console.log(`El archivo es de tipo ${fileType.mime} y su extensión es ${fileType.ext}`);
       fileName = `${cid}.${fileType.ext}`
       if(fileType.ext == 'pdf'){
-        const pdfText = await Pdf.getPDFText(fileBuffer);
+        const pdf = await pdfjslib.getDocument(source).promise;
+        const maxPages = pdf.numPages;
+        const pageTextPromises = [];
+        for (let pageNo = 1; pageNo <= maxPages; pageNo += 1) {
+          const page = await pdf.getPage(pageNo)
+          const tokenizedText = await page.getTextContent()
+          const pageText = tokenizedText.items.map((token) => token.str).join('')
+          pageTextPromises.push(pageText)
+        }
+        const pageTexts = await Promise.all(pageTextPromises)
         res.json({
           success: true,
-          data: pdfText
+          data: pageTexts.join(' ')
         })
       }
     } else {
