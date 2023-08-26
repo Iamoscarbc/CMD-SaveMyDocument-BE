@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import bodyParser from 'body-parser'
 import "./config/loadEnvironment.js";
-import { PdfParser } from 'pdf2json';
+import pdf2json from 'pdf2json';
 
 
 import { File } from './models/index.js';
@@ -158,7 +158,7 @@ app.get('/api/get-file-text-by-cid/:cid', async (req, res) => {
       console.log(`El archivo es de tipo ${fileType.mime} y su extensión es ${fileType.ext}`);
       fileName = `${cid}.${fileType.ext}`
       if(fileType.ext == 'pdf'){
-        const pdfParser = new PdfParser()
+        const pdfParser = new pdf2json()
         pdfParser.on('pdfParser_dataReady', pdfData => {
           const text = pdfData.formImage.Pages[0].Texts.map(text => text.R[0].T).join(' ')
           console.log(text)
