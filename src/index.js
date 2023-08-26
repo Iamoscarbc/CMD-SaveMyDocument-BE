@@ -149,25 +149,33 @@ app.get('/api/get-file-text-by-cid/:cid', async (req, res) => {
     for await (const chunk of fileStream) {
       fileBuffer = Buffer.concat([fileBuffer, chunk]);
     }
+    console.log("fileBuffer", fileBuffer)
     
     const fileType = await fileTypeFromBuffer(fileBuffer);
     let fileName = cid
     if (fileType) {
       console.log(`El archivo es de tipo ${fileType.mime} y su extensión es ${fileType.ext}`);
       fileName = `${cid}.${fileType.ext}`
+      if(fileType.ext == 'pdf'){
+        await fs.writeFileSync(fileName, fileBuffer);
+        let filePath = path.join(__dirname, "../"+fileName)
+        console.log("filePath", filePath)
+        let readFileSync = fs.readFileSync(filePath)
+        console.log("readFileSync", readFileSync)
+        res.json({
+          success: true,
+          data: ''
+        })
+      }
     } else {
       console.log('No se pudo determinar el tipo de archivo');
+      res.json({
+        success: false,
+        message: 'No coincide con el tipo especificado ".pdf"'
+      })
     }
     
-    await fs.writeFileSync(fileName, fileBuffer);
-    let filePath = path.join(__dirname, "../"+fileName)
-    console.log("filePath", filePath)
-    let readFileSync = fs.readFileSync(filePath)
-    console.log("readFileSync", readFileSync)
-    res.json({
-      success: true,
-      data: ''
-    })
+    
   } catch (err) {
     console.error(err)
     res.json({
