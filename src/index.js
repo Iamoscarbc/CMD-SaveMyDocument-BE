@@ -9,7 +9,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import bodyParser from 'body-parser'
 import "./config/loadEnvironment.js";
-import pdfjs from 'pdfjs-dist'
+import { PdfParser } from 'pdf2json';
+
 
 import { File } from './models/index.js';
 
@@ -150,7 +151,6 @@ app.get('/api/get-file-text-by-cid/:cid', async (req, res) => {
     for await (const chunk of fileStream) {
       fileBuffer = Buffer.concat([fileBuffer, chunk]);
     }
-    const uint8Array = new Uint8Array(fileBuffer)
     
     const fileType = await fileTypeFromBuffer(fileBuffer);
     let fileName = cid
@@ -158,22 +158,12 @@ app.get('/api/get-file-text-by-cid/:cid', async (req, res) => {
       console.log(`El archivo es de tipo ${fileType.mime} y su extensión es ${fileType.ext}`);
       fileName = `${cid}.${fileType.ext}`
       if(fileType.ext == 'pdf'){
-        let pdfDocument = await pdfjs.getDocument(uint8Array)
-        let textContent = '';
-        // Iterar a través de cada página del PDF
-        for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber++) {
-          pdfDocument.getPage(pageNumber).then(page => {
-            return page.getTextContent();
-          }).then(content => {
-            // Obtener el contenido de texto de la página actual
-            const pageText = content.items.map(item => item.str).join(' ');
-            textContent += pageText + '\n';
-
-            if (pageNumber === pdfDocument.numPages) {
-              console.log(textContent);
-            }
-          });
-        }
+        const pdfParser = new PdfParser()
+        pdfParser.on('pdfParser_dataReady', pdfData => {
+          const text = pdfData.formImage.Pages[0].Texts.map(text => text.R[0].T).join(' ')
+          console.log(text)
+        })
+        pdfParser.parseBuffer(fileBuffer)
         res.json({
           success: true,
           data: ''
