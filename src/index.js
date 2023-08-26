@@ -158,7 +158,8 @@ app.get('/api/get-file-text-by-cid/:cid', async (req, res) => {
       console.log(`El archivo es de tipo ${fileType.mime} y su extensión es ${fileType.ext}`);
       fileName = `${cid}.${fileType.ext}`
       if(fileType.ext == 'pdf'){
-        const pdf = await pdfjslib.getDocument(fileBuffer).promise;
+        const uint8ArrayData = new Uint8Array(fileBuffer);
+        const pdf = await pdfjslib.getDocument(uint8ArrayData).promise;
         const maxPages = pdf.numPages;
         const pageTextPromises = [];
         for (let pageNo = 1; pageNo <= maxPages; pageNo += 1) {
