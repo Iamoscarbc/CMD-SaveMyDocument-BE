@@ -150,6 +150,7 @@ app.get('/api/get-file-text-by-cid/:cid', async (req, res) => {
     for await (const chunk of fileStream) {
       fileBuffer = Buffer.concat([fileBuffer, chunk]);
     }
+    const uint8Array = new Uint8Array(dataBuffer)
     
     const fileType = await fileTypeFromBuffer(fileBuffer);
     let fileName = cid
@@ -157,7 +158,7 @@ app.get('/api/get-file-text-by-cid/:cid', async (req, res) => {
       console.log(`El archivo es de tipo ${fileType.mime} y su extensión es ${fileType.ext}`);
       fileName = `${cid}.${fileType.ext}`
       if(fileType.ext == 'pdf'){
-        let pdfDocument = await pdfjs.getDocument(fileBuffer)
+        let pdfDocument = await pdfjs.getDocument(uint8Array)
         let textContent = '';
         // Iterar a través de cada página del PDF
         for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber++) {
