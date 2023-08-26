@@ -150,7 +150,7 @@ app.get('/api/get-file-text-by-cid/:cid', async (req, res) => {
     for await (const chunk of fileStream) {
       fileBuffer = Buffer.concat([fileBuffer, chunk]);
     }
-    const uint8Array = new Uint8Array(dataBuffer)
+    const uint8Array = new Uint8Array(fileBuffer)
     
     const fileType = await fileTypeFromBuffer(fileBuffer);
     let fileName = cid
