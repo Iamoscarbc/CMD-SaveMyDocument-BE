@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 import bodyParser from 'body-parser'
 import "./config/loadEnvironment.js";
 
-import * as pdfjslib from 'pdfjs-dist';
+import * as pdfjslib from 'pdfjs-dist/build/pdf.js';
 
 import { File } from './models/index.js';
 
