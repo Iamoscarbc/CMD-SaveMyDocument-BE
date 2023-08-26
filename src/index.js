@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import bodyParser from 'body-parser'
 import "./config/loadEnvironment.js";
-import pdf from 'pdf-parse'
+import pdfjs from 'pdfjs-dist'
 
 import { File } from './models/index.js';
 
@@ -157,10 +157,22 @@ app.get('/api/get-file-text-by-cid/:cid', async (req, res) => {
       console.log(`El archivo es de tipo ${fileType.mime} y su extensión es ${fileType.ext}`);
       fileName = `${cid}.${fileType.ext}`
       if(fileType.ext == 'pdf'){
-        let pdfExtract = await pdf(fileBuffer)
-        console.log('File content: ', pdfExtract.text)
-        console.log('Total pages: ', pdfExtract.numpages)
-        console.log('All content: ', pdfExtract.info)
+        let pdfDocument = await pdfjs.getDocument(fileBuffer)
+        let textContent = '';
+        // Iterar a través de cada página del PDF
+        for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber++) {
+          pdfDocument.getPage(pageNumber).then(page => {
+            return page.getTextContent();
+          }).then(content => {
+            // Obtener el contenido de texto de la página actual
+            const pageText = content.items.map(item => item.str).join(' ');
+            textContent += pageText + '\n';
+
+            if (pageNumber === pdfDocument.numPages) {
+              console.log(textContent);
+            }
+          });
+        }
         res.json({
           success: true,
           data: ''
