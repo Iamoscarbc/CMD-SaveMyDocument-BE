@@ -10,6 +10,8 @@ const __dirname = path.dirname(__filename);
 import bodyParser from 'body-parser'
 import "./config/loadEnvironment.js";
 
+import Pdf from './pdf.js'
+
 import { File } from './models/index.js';
 
 app.use(bodyParser.urlencoded({
@@ -156,13 +158,10 @@ app.get('/api/get-file-text-by-cid/:cid', async (req, res) => {
       console.log(`El archivo es de tipo ${fileType.mime} y su extensión es ${fileType.ext}`);
       fileName = `${cid}.${fileType.ext}`
       if(fileType.ext == 'pdf'){
-        await fs.writeFileSync(fileName, fileBuffer);
-        let filePath = path.join(__dirname, "../"+fileName)
-        let response = await fs.readFileSync(filePath, 'utf-8')
-        await fs.unlinkSync(filePath)
+        const pdfText = await Pdf.getPDFText(fileBuffer);
         res.json({
           success: true,
-          data: response
+          data: pdfText
         })
       }
     } else {
