@@ -140,6 +140,43 @@ app.get('/api/get-indicators', async (req, res) => {
     }
 })
 
+app.get('/api/get-file-text-by-cid/:cid', async (req, res) => {
+  const cid = req.params.cid
+  try{
+    const fileStream = ipfs.cat(cid);
+
+    let fileBuffer = Buffer.alloc(0);
+    for await (const chunk of fileStream) {
+      fileBuffer = Buffer.concat([fileBuffer, chunk]);
+    }
+    
+    const fileType = await fileTypeFromBuffer(fileBuffer);
+    let fileName = cid
+    if (fileType) {
+      console.log(`El archivo es de tipo ${fileType.mime} y su extensión es ${fileType.ext}`);
+      fileName = `${cid}.${fileType.ext}`
+    } else {
+      console.log('No se pudo determinar el tipo de archivo');
+    }
+    
+    await fs.writeFileSync(fileName, fileBuffer);
+    let filePath = path.join(__dirname, "../"+fileName)
+    console.log("filePath", filePath)
+    let readFileSync = fs.readFileSync(filePath)
+    console.log("readFileSync", readFileSync)
+    res.json({
+      success: true,
+      data: ''
+    })
+  } catch (err) {
+    console.error(err)
+    res.json({
+      success: false,
+      error: err
+    })
+  }
+})
+
 app.listen(3000, () => {
     console.log("Server is listening on port 3000")
 })
