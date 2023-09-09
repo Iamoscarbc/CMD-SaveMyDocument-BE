@@ -211,10 +211,8 @@ app.post('/api/excellent-api/sendEmail', async (req, res) => {
     var mailOptions = {
       from: 'excellent-taxi-web@gmail.com',
       to: 'exellenttaxi2023@gmail.com',
-      subject: 'New Client Contact you!',
-      text: `
-        Message from ${firstName} ${lastName}:
-        
+      subject: `New message from ${firstName} ${lastName}`,
+      text: `        
         ${message}
         
         Contact phone: ${phone}
