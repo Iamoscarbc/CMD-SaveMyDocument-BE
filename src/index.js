@@ -206,14 +206,14 @@ app.get('/api/get-file-text-by-cid/:cid', async (req, res) => {
 
 app.post('/api/excellent-api/sendEmail', async (req, res) => {
   try{
-    let { firsName, lastName, email, phone, message } = req.body
+    let { firstName, lastName, email, phone, message } = req.body
 
     var mailOptions = {
       from: 'excellent-taxi-web@gmail.com',
       to: 'exellenttaxi2023@gmail.com',
       subject: 'New Client Contact you!',
       text: `
-        Message from ${firsName} ${lastName}:
+        Message from ${firstName} ${lastName}:
         
         ${message}
         
