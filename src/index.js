@@ -27,6 +27,18 @@ app.use(fileUpload())
 import * as IPFS from 'ipfs-core';
 const ipfs = await IPFS.create();
 
+import nodemailer from 'nodemailer'
+import smtpTransport from 'nodemailer-smtp-transport'
+
+var transporter = nodemailer.createTransport(smtpTransport({
+  service: 'gmail',
+  host: 'smtp.gmail.com',
+  auth: {
+    user: 'excellentt.contact@gmail.com',
+    pass: 'qayuiwxgjrukgspg'
+  }
+}));
+
 //Routes
 app.post('/api/addFile', async (req, res) => {
   try {
@@ -183,6 +195,43 @@ app.get('/api/get-file-text-by-cid/:cid', async (req, res) => {
     }
     
     
+  } catch (err) {
+    console.error(err)
+    res.json({
+      success: false,
+      error: err
+    })
+  }
+})
+
+app.post('/api/excellent-api/sendEmail', async (req, res) => {
+  try{
+    let { firsName, lastName, email, phone, message } = req.body
+
+    var mailOptions = {
+      from: 'excellent-taxi-web@gmail.com',
+      to: 'exellenttaxi2023@gmail.com',
+      subject: 'New Client Contact you!',
+      text: `
+        Message from ${firsName} ${lastName}:
+        
+        ${message}
+        
+        Contact phone: ${phone}
+        Contact email: ${email}`
+    };
+
+    transporter.sendMail(mailOptions, function(error, info){
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('Email sent: ' + info.response);
+      }
+    })
+    res.json({
+      success: true,
+      message: 'Excellent API'
+    })
   } catch (err) {
     console.error(err)
     res.json({
